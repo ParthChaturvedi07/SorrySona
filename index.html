@@ -99,6 +99,7 @@ button {
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 #yesBtn {
@@ -112,6 +113,12 @@ button {
 }
 
 .hidden { display: none; }
+
+/* Mobile swipe-away animation */
+.swipe-away {
+    transform: translate(var(--swipe-x), var(--swipe-y)) rotate(var(--swipe-r));
+    opacity: 0;
+}
 
 @media (max-width: 480px) {
     h1 { font-size: 28px; }
@@ -135,17 +142,17 @@ button {
 
         <p>
             I was genuinely trying to be better — for you, and around you.
-            Somewhere along the way, things went in a direction I never intended.
+            Somehow, things went in a direction I never intended.
         </p>
 
         <p>
             If it felt like I didn’t understand you,
-            or if I came across as a bad person,
+            or like I was being a bad person,
             I’m truly sorry.
         </p>
 
         <p>
-            I wasn’t trying to make you feel guilty or pressured.
+            I wasn’t trying to make you feel guilty.
             I was hurt and confused myself, and I didn’t express that well.
         </p>
 
@@ -155,7 +162,7 @@ button {
         </p>
 
         <p>
-            I know good intentions don’t erase hurt,
+            I know intentions don’t erase hurt,
             but my heart was never in the wrong place.
         </p>
     </div>
@@ -163,7 +170,6 @@ button {
     <div class="message hidden" id="forgivenMessage">
         <div style="font-size:60px;margin-bottom:16px;">🤍✨</div>
         <p style="font-size:24px;color:#f5576c;">Thank you, Sona.</p>
-        <p>I don’t take this lightly.</p>
         <p>I’ll keep working on being better — quietly and consistently.</p>
     </div>
 
@@ -198,7 +204,7 @@ function createHeart() {
 }
 setInterval(createHeart, 400);
 
-/* Hover dodge ONLY on devices that support hover */
+/* Desktop hover dodge */
 if (window.matchMedia('(hover: hover)').matches) {
     noBtn.addEventListener('mouseenter', () => {
         const maxX = window.innerWidth - noBtn.offsetWidth - 20;
@@ -209,13 +215,33 @@ if (window.matchMedia('(hover: hover)').matches) {
     });
 }
 
-/* Mobile-safe click behavior */
+/* Mobile swipe-away on tap */
 noBtn.addEventListener('click', () => {
-    initialMessage.classList.add('hidden');
-    buttons.classList.add('hidden');
-    timeMessage.classList.remove('hidden');
+    if (!window.matchMedia('(hover: hover)').matches) {
+        const directions = [
+            { x: '120vw', y: '0', r: '20deg' },
+            { x: '-120vw', y: '0', r: '-20deg' },
+            { x: '0', y: '-120vh', r: '0deg' }
+        ];
+        const d = directions[Math.floor(Math.random()*directions.length)];
+        noBtn.style.setProperty('--swipe-x', d.x);
+        noBtn.style.setProperty('--swipe-y', d.y);
+        noBtn.style.setProperty('--swipe-r', d.r);
+        noBtn.classList.add('swipe-away');
+
+        setTimeout(() => {
+            initialMessage.classList.add('hidden');
+            buttons.classList.add('hidden');
+            timeMessage.classList.remove('hidden');
+        }, 350);
+    } else {
+        initialMessage.classList.add('hidden');
+        buttons.classList.add('hidden');
+        timeMessage.classList.remove('hidden');
+    }
 });
 
+/* Forgive */
 yesBtn.addEventListener('click', () => {
     initialMessage.classList.add('hidden');
     buttons.classList.add('hidden');
