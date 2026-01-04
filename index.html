@@ -19,6 +19,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .hearts {
@@ -90,6 +91,7 @@ h1 {
     gap: 14px;
     justify-content: center;
     flex-wrap: wrap;
+    position: relative;
 }
 
 button {
@@ -99,7 +101,7 @@ button {
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: transform 0.35s ease;
 }
 
 #yesBtn {
@@ -110,15 +112,10 @@ button {
 #noBtn {
     background: linear-gradient(135deg, #a8edea, #fed6e3);
     color: #444;
+    position: relative;
 }
 
 .hidden { display: none; }
-
-/* Mobile swipe-away animation */
-.swipe-away {
-    transform: translate(var(--swipe-x), var(--swipe-y)) rotate(var(--swipe-r));
-    opacity: 0;
-}
 
 @media (max-width: 480px) {
     h1 { font-size: 28px; }
@@ -173,12 +170,6 @@ button {
         <p>I’ll keep working on being better — quietly and consistently.</p>
     </div>
 
-    <div class="message hidden" id="timeMessage">
-        <p>I understand.</p>
-        <p>Take all the time you need.</p>
-        <p>I’ll focus on doing better, without pushing you.</p>
-    </div>
-
     <div class="button-container" id="buttons">
         <button id="yesBtn">I forgive you 🤍</button>
         <button id="noBtn">I need time</button>
@@ -191,7 +182,6 @@ const yesBtn = document.getElementById('yesBtn');
 const noBtn = document.getElementById('noBtn');
 const initialMessage = document.getElementById('initialMessage');
 const forgivenMessage = document.getElementById('forgivenMessage');
-const timeMessage = document.getElementById('timeMessage');
 const buttons = document.getElementById('buttons');
 
 function createHeart() {
@@ -206,40 +196,24 @@ setInterval(createHeart, 400);
 
 /* Desktop hover dodge */
 if (window.matchMedia('(hover: hover)').matches) {
-    noBtn.addEventListener('mouseenter', () => {
-        const maxX = window.innerWidth - noBtn.offsetWidth - 20;
-        const maxY = window.innerHeight - noBtn.offsetHeight - 20;
-        noBtn.style.position = 'fixed';
-        noBtn.style.left = Math.random()*maxX + 'px';
-        noBtn.style.top = Math.random()*maxY + 'px';
-    });
+    noBtn.addEventListener('mouseenter', moveButton);
 }
 
-/* Mobile swipe-away on tap */
-noBtn.addEventListener('click', () => {
-    if (!window.matchMedia('(hover: hover)').matches) {
-        const directions = [
-            { x: '120vw', y: '0', r: '20deg' },
-            { x: '-120vw', y: '0', r: '-20deg' },
-            { x: '0', y: '-120vh', r: '0deg' }
-        ];
-        const d = directions[Math.floor(Math.random()*directions.length)];
-        noBtn.style.setProperty('--swipe-x', d.x);
-        noBtn.style.setProperty('--swipe-y', d.y);
-        noBtn.style.setProperty('--swipe-r', d.r);
-        noBtn.classList.add('swipe-away');
+/* Mobile tap dodge */
+noBtn.addEventListener('click', moveButton);
 
-        setTimeout(() => {
-            initialMessage.classList.add('hidden');
-            buttons.classList.add('hidden');
-            timeMessage.classList.remove('hidden');
-        }, 350);
-    } else {
-        initialMessage.classList.add('hidden');
-        buttons.classList.add('hidden');
-        timeMessage.classList.remove('hidden');
-    }
-});
+function moveButton() {
+    const directions = [
+        { x: 0, y: -120 },
+        { x: 0, y: 120 },
+        { x: -120, y: 0 },
+        { x: 120, y: 0 },
+        { x: 100, y: -100 },
+        { x: -100, y: 100 }
+    ];
+    const d = directions[Math.floor(Math.random()*directions.length)];
+    noBtn.style.transform = `translate(${d.x}px, ${d.y}px)`;
+}
 
 /* Forgive */
 yesBtn.addEventListener('click', () => {
